@@ -85,19 +85,9 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
             )
 
             itens_pedido = []
-            produtos = safe_get(p, 'Produtos')
-
-            # Debug: Ver estrutura dos produtos
-            if produtos is None:
-                print(f"[DEBUG] Produtos é None para pedido {safe_get(p, 'NumeroPedidoEmbarcador')}")
-                print(f"[DEBUG] Chaves disponíveis no pedido: {list(p.keys()) if isinstance(p, dict) else 'N/A'}")
-            elif not isinstance(produtos, list):
-                print(f"[DEBUG] Produtos não é lista, é: {type(produtos)}")
-                print(f"[DEBUG] Valor de Produtos: {produtos}")
-            else:
-                print(f"[DEBUG] Encontrados {len(produtos)} produtos")
-                if len(produtos) > 0:
-                    print(f"[DEBUG] Chaves do primeiro produto: {list(produtos[0].keys()) if isinstance(produtos[0], dict) else 'N/A'}")
+            # Produtos é um OrderedDict com estrutura: {'Produto': [{...}, {...}]}
+            # Precisamos acessar a chave 'Produto' que contém a lista
+            produtos = safe_get(p, 'Produtos', 'Produto')
 
             if produtos and isinstance(produtos, list):
                 for a in produtos:
