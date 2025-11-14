@@ -1,0 +1,21 @@
+[project]
+name = "multiembarcador-graphql-facade"
+version = "0.1.0"
+description = "GraphQL Facade for SOAP WebService SGT"
+authors = [
+    {name = "Claude",email = "noreply@anthropic.com"}
+]
+readme = "README.md"
+requires-python = "^3.10"
+dependencies = [
+    "fastapi (>=0.121.2,<0.122.0)",
+    "uvicorn (>=0.38.0,<0.39.0)",
+    "strawberry-graphql[fastapi] (>=0.285.0,<0.286.0)",
+    "zeep (>=4.3.2,<5.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
