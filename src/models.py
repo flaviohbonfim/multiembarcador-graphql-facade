@@ -7,6 +7,7 @@ class ItemPedido:
     """ Baseado no 'ItemPedido' do C# """
     codigoGrupoProduto: Optional[str]
     codigoProduto: Optional[str]
+    codigoNcm: Optional[str]
     descricaoGrupoProduto: Optional[str]
     descricaoProduto: Optional[str]
     metroCubico: Optional[float]

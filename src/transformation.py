@@ -96,6 +96,7 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
                     itens_pedido.append(ItemPedido(
                         codigoGrupoProduto=safe_get(a, 'CodigoGrupoProduto'),
                         codigoProduto=safe_get(a, 'CodigoProduto'),
+                        codigoNcm=safe_get(a, 'CodigoNCM'),
                         descricaoGrupoProduto=safe_get(a, 'DescricaoGrupoProduto'),
                         descricaoProduto=safe_get(a, 'DescricaoProduto'),
                         metroCubico=safe_get(a, 'MetroCubito'), # Atenção ao 'MetroCubito'
