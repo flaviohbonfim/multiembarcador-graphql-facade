@@ -29,44 +29,28 @@ def chamar_buscar_carga(protocolo_str: str, wsdl_url: str, token: str) -> Option
         )
         header.text = token
 
-        # 3. Tentar diferentes abordagens para o payload
-        # Tentativa 1: Passar protocolo diretamente como string
-        response = None
-        ns_dom = "http://schemas.datacontract.org/2004/07/Dominio.ObjetosDeValor.WebService.Carga"
+        # 3. Criar o payload baseado no XML de exemplo
+        # A estrutura esperada é:
+        # <tem:protocolo>
+        #   <dom:protocoloIntegracaoCarga>6482243</dom:protocoloIntegracaoCarga>
+        # </tem:protocolo>
 
-        try:
-            print(f"[SOAP] Tentando chamar BuscarCarga com protocolo como string...")
-            response = client.service.BuscarCarga(
-                protocolo=protocolo_str,
-                _soapheaders=[header]
-            )
-        except Exception as e1:
-            print(f"[SOAP] Falha com string simples: {e1}")
+        print(f"[SOAP] Criando payload com estrutura: {{protocoloIntegracaoCarga: '{protocolo_str}'}}")
 
-            # Tentativa 2: Usar tipo Protocolos se existir
-            try:
-                print(f"[SOAP] Tentando com tipo 'Protocolos'...")
-                ProtocolosType = client.get_type(f'{{{ns_dom}}}Protocolos')
-                payload = ProtocolosType(ProtocoloCarga=protocolo_str)
-                response = client.service.BuscarCarga(
-                    protocolo=payload,
-                    _soapheaders=[header]
-                )
-            except Exception as e2:
-                print(f"[SOAP] Falha com tipo Protocolos: {e2}")
+        # Criar objeto com a estrutura correta usando dicionário
+        # O Zeep automaticamente converte para o tipo SOAP correto
+        payload = {
+            'protocoloIntegracaoCarga': protocolo_str
+        }
 
-                # Tentativa 3: Criar objeto com estrutura dinâmica
-                try:
-                    print(f"[SOAP] Tentando com dicionário simples...")
-                    response = client.service.BuscarCarga(
-                        protocolo={'ProtocoloCarga': protocolo_str},
-                        _soapheaders=[header]
-                    )
-                except Exception as e3:
-                    print(f"[SOAP] Falha com dicionário: {e3}")
-                    raise Exception("Todas as tentativas de chamada SOAP falharam")
+        # 4. Chamar o serviço
+        print(f"[SOAP] Chamando BuscarCarga...")
+        response = client.service.BuscarCarga(
+            protocolo=payload,
+            _soapheaders=[header]
+        )
 
-        # 4. Processar a resposta (baseado no response.txt)
+        # 5. Processar a resposta (baseado no response.txt)
         # Caminho: BuscarCargaResult -> Objeto -> CargaIntegracao (lista)
         if response and response.CodigoMensagem == 0 and response.Objeto and response.Objeto.CargaIntegracao:
             # Serializa a resposta do Zeep para um dict/list Python padrão
