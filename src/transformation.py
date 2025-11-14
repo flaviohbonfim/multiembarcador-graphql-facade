@@ -39,49 +39,49 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
         linha = carga_integracao[0]
 
         carregamento = Carregamento(
-            NumeroCarga=safe_get(linha, 'NumeroCarga'),
-            Filial=safe_get(linha, 'Filial', 'CodigoIntegracao'),
-            ProtocoloCarga=safe_get(linha, 'ProtocoloCarga'),
-            CpfMotorista=safe_get(linha, 'Motoristas', 0, 'CPF'),
-            NomeMotorista=safe_get(linha, 'Motoristas', 0, 'Nome'),
-            ModeloVeicular=safe_get(linha, 'ModeloVeicular', 'CodigoIntegracao'),
-            PlacaVeiculo=safe_get(linha, 'Veiculo', 'Placa'),
-            TipoOperacao=safe_get(linha, 'TipoOperacao', 'CodigoIntegracao'),
-            TipoVeiculo=str(safe_get(linha, 'Veiculo', 'TipoVeiculo') or ''),
-            Transportador=safe_get(linha, 'TransportadoraEmitente', 'CNPJ'),
-            Pedidos=[]
+            numeroCarga=safe_get(linha, 'NumeroCarga'),
+            filial=safe_get(linha, 'Filial', 'CodigoIntegracao'),
+            protocoloCarga=safe_get(linha, 'ProtocoloCarga'),
+            cpfMotorista=safe_get(linha, 'Motoristas', 0, 'CPF'),
+            nomeMotorista=safe_get(linha, 'Motoristas', 0, 'Nome'),
+            modeloVeicular=safe_get(linha, 'ModeloVeicular', 'CodigoIntegracao'),
+            placaVeiculo=safe_get(linha, 'Veiculo', 'Placa'),
+            tipoOperacao=safe_get(linha, 'TipoOperacao', 'CodigoIntegracao'),
+            tipoVeiculo=str(safe_get(linha, 'Veiculo', 'TipoVeiculo') or ''),
+            transportador=safe_get(linha, 'TransportadoraEmitente', 'CNPJ'),
+            pedidos=[]
         )
 
         # 2. Iterar sobre TODOS os itens para montar a lista de Pedidos
         for p in carga_integracao:
             expedidor = Participante(
-                Bairro=safe_get(p, 'Remetente', 'Endereco', 'Bairro'),
-                Cep=safe_get(p, 'Remetente', 'Endereco', 'CEP'),
-                Cidade=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'Descricao'),
-                Cnpj=safe_get(p, 'Remetente', 'CPFCNPJ'),
-                Descricao=safe_get(p, 'Remetente', 'NomeFantasia'),
-                Endereco=safe_get(p, 'Remetente', 'Endereco', 'Logradouro'),
-                Estado=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'SiglaUF'),
-                Ibge=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'IBGE'),
-                Ie=safe_get(p, 'Remetente', 'RGIE'),
-                Logradouro=safe_get(p, 'Remetente', 'Endereco', 'Logradouro'),
-                Numero=safe_get(p, 'Remetente', 'Endereco', 'Numero'),
-                RazaoSocial=safe_get(p, 'Remetente', 'RazaoSocial')
+                bairro=safe_get(p, 'Remetente', 'Endereco', 'Bairro'),
+                cep=safe_get(p, 'Remetente', 'Endereco', 'CEP'),
+                cidade=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'Descricao'),
+                cnpj=safe_get(p, 'Remetente', 'CPFCNPJ'),
+                descricao=safe_get(p, 'Remetente', 'NomeFantasia'),
+                endereco=safe_get(p, 'Remetente', 'Endereco', 'Logradouro'),
+                estado=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'SiglaUF'),
+                ibge=safe_get(p, 'Remetente', 'Endereco', 'Cidade', 'IBGE'),
+                ie=safe_get(p, 'Remetente', 'RGIE'),
+                logradouro=safe_get(p, 'Remetente', 'Endereco', 'Logradouro'),
+                numero=safe_get(p, 'Remetente', 'Endereco', 'Numero'),
+                razaoSocial=safe_get(p, 'Remetente', 'RazaoSocial')
             )
 
             recebedor = Participante(
-                Bairro=safe_get(p, 'Destinatario', 'Endereco', 'Bairro'),
-                Cep=safe_get(p, 'Destinatario', 'Endereco', 'CEP'),
-                Cidade=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'Descricao'),
-                Cnpj=safe_get(p, 'Destinatario', 'CPFCNPJ'),
-                Descricao=safe_get(p, 'Destinatario', 'NomeFantasia'),
-                Endereco=safe_get(p, 'Destinatario', 'Endereco', 'Logradouro'),
-                Estado=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'SiglaUF'),
-                Ibge=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'IBGE'),
-                Ie=safe_get(p, 'Destinatario', 'RGIE'),
-                Logradouro=safe_get(p, 'Destinatario', 'Endereco', 'Logradouro'),
-                Numero=safe_get(p, 'Destinatario', 'Endereco', 'Numero'),
-                RazaoSocial=safe_get(p, 'Destinatario', 'RazaoSocial')
+                bairro=safe_get(p, 'Destinatario', 'Endereco', 'Bairro'),
+                cep=safe_get(p, 'Destinatario', 'Endereco', 'CEP'),
+                cidade=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'Descricao'),
+                cnpj=safe_get(p, 'Destinatario', 'CPFCNPJ'),
+                descricao=safe_get(p, 'Destinatario', 'NomeFantasia'),
+                endereco=safe_get(p, 'Destinatario', 'Endereco', 'Logradouro'),
+                estado=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'SiglaUF'),
+                ibge=safe_get(p, 'Destinatario', 'Endereco', 'Cidade', 'IBGE'),
+                ie=safe_get(p, 'Destinatario', 'RGIE'),
+                logradouro=safe_get(p, 'Destinatario', 'Endereco', 'Logradouro'),
+                numero=safe_get(p, 'Destinatario', 'Endereco', 'Numero'),
+                razaoSocial=safe_get(p, 'Destinatario', 'RazaoSocial')
             )
 
             itens_pedido = []
@@ -89,35 +89,35 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
             if produtos and isinstance(produtos, list):
                 for a in produtos:
                     itens_pedido.append(ItemPedido(
-                        CodigoGrupoProduto=safe_get(a, 'CodigoGrupoProduto'),
-                        CodigoProduto=safe_get(a, 'CodigoProduto'),
-                        DescricaoGrupoProduto=safe_get(a, 'DescricaoGrupoProduto'),
-                        DescricaoProduto=safe_get(a, 'DescricaoProduto'),
-                        MetroCubico=safe_get(a, 'MetroCubito'), # Atenção ao 'MetroCubito'
-                        PesoUnitario=safe_get(a, 'PesoUnitario'),
-                        Quantidade=safe_get(a, 'Quantidade'),
-                        ValorUnitario=safe_get(a, 'ValorUnitario')
+                        codigoGrupoProduto=safe_get(a, 'CodigoGrupoProduto'),
+                        codigoProduto=safe_get(a, 'CodigoProduto'),
+                        descricaoGrupoProduto=safe_get(a, 'DescricaoGrupoProduto'),
+                        descricaoProduto=safe_get(a, 'DescricaoProduto'),
+                        metroCubico=safe_get(a, 'MetroCubito'), # Atenção ao 'MetroCubito'
+                        pesoUnitario=safe_get(a, 'PesoUnitario'),
+                        quantidade=safe_get(a, 'Quantidade'),
+                        valorUnitario=safe_get(a, 'ValorUnitario')
                     ))
 
             pedido = Pedido(
-                CodFilial=safe_get(p, 'Filial', 'CodigoIntegracao'),
-                NumeroPedidoEmbarcador=safe_get(p, 'NumeroPedidoEmbarcador'),
-                ProtocoloPedido=safe_get(p, 'ProtocoloPedido'),
-                CodigoRota=safe_get(p, 'CodigoIntegracaoRota'),
-                DataInicioCarregamento=str(safe_get(p, 'DataInicioCarregamento') or ''),
-                DataPrevisaoEntrega=str(safe_get(p, 'DataPrevisaoEntrega') or ''),
-                Observacao=safe_get(p, 'Observacao'),
-                OrdemEntrega=safe_get(p, 'OrdemEntrega'),
-                PesoBruto=safe_get(p, 'PesoBruto'),
-                TipoCarga=safe_get(p, 'TipoCargaEmbarcador', 'CodigoIntegracao'),
-                TipoOperacao=safe_get(p, 'TipoOperacao', 'CodigoIntegracao'),
-                TipoPedido=str(safe_get(p, 'TipoPedido') or ''),
-                Vendedor=safe_get(p, 'Vendedor'),
-                Expedidor=expedidor,
-                Recebedor=recebedor,
-                ItensPedido=itens_pedido
+                codFilial=safe_get(p, 'Filial', 'CodigoIntegracao'),
+                numeroPedidoEmbarcador=safe_get(p, 'NumeroPedidoEmbarcador'),
+                protocoloPedido=safe_get(p, 'ProtocoloPedido'),
+                codigoRota=safe_get(p, 'CodigoIntegracaoRota'),
+                dataInicioCarregamento=str(safe_get(p, 'DataInicioCarregamento') or ''),
+                dataPrevisaoEntrega=str(safe_get(p, 'DataPrevisaoEntrega') or ''),
+                observacao=safe_get(p, 'Observacao'),
+                ordemEntrega=safe_get(p, 'OrdemEntrega'),
+                pesoBruto=safe_get(p, 'PesoBruto'),
+                tipoCarga=safe_get(p, 'TipoCargaEmbarcador', 'CodigoIntegracao'),
+                tipoOperacao=safe_get(p, 'TipoOperacao', 'CodigoIntegracao'),
+                tipoPedido=str(safe_get(p, 'TipoPedido') or ''),
+                vendedor=safe_get(p, 'Vendedor'),
+                expedidor=expedidor,
+                recebedor=recebedor,
+                itensPedido=itens_pedido
             )
-            carregamento.Pedidos.append(pedido)
+            carregamento.pedidos.append(pedido)
 
         return carregamento
 

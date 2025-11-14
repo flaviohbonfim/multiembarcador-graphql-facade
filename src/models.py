@@ -5,62 +5,62 @@ from typing import List, Optional
 @strawberry.type
 class ItemPedido:
     """ Baseado no 'ItemPedido' do C# """
-    CodigoGrupoProduto: Optional[str]
-    CodigoProduto: Optional[str]
-    DescricaoGrupoProduto: Optional[str]
-    DescricaoProduto: Optional[str]
-    MetroCubico: Optional[float]
-    PesoUnitario: Optional[float]
-    Quantidade: Optional[float]
-    ValorUnitario: Optional[float]
+    codigoGrupoProduto: Optional[str]
+    codigoProduto: Optional[str]
+    descricaoGrupoProduto: Optional[str]
+    descricaoProduto: Optional[str]
+    metroCubico: Optional[float]
+    pesoUnitario: Optional[float]
+    quantidade: Optional[float]
+    valorUnitario: Optional[float]
 
 @strawberry.type
 class Participante:
     """ Tipo genérico para Expedidor (Remetente) e Recebedor (Destinatario) """
-    Bairro: Optional[str]
-    Cep: Optional[str]
-    Cidade: Optional[str]
-    Cnpj: Optional[str]
-    Descricao: Optional[str]
-    Endereco: Optional[str]
-    Estado: Optional[str]
-    Ibge: Optional[str]
-    Ie: Optional[str]
-    Logradouro: Optional[str]
-    Numero: Optional[str]
-    RazaoSocial: Optional[str]
+    bairro: Optional[str]
+    cep: Optional[str]
+    cidade: Optional[str]
+    cnpj: Optional[str]
+    descricao: Optional[str]
+    endereco: Optional[str]
+    estado: Optional[str]
+    ibge: Optional[str]
+    ie: Optional[str]
+    logradouro: Optional[str]
+    numero: Optional[str]
+    razaoSocial: Optional[str]
 
 @strawberry.type
 class Pedido:
     """ Baseado no 'Pedido' do C# """
-    CodFilial: Optional[str]
-    NumeroPedidoEmbarcador: Optional[str]
-    ProtocoloPedido: Optional[str]
-    CodigoRota: Optional[str]
-    DataInicioCarregamento: Optional[str] # Usar str ou strawberry.DateTime
-    DataPrevisaoEntrega: Optional[str]    # Usar str ou strawberry.DateTime
-    Observacao: Optional[str]
-    OrdemEntrega: Optional[int]
-    PesoBruto: Optional[float]
-    TipoCarga: Optional[str]
-    TipoOperacao: Optional[str]
-    TipoPedido: Optional[str]
-    Vendedor: Optional[str]
-    Expedidor: Optional[Participante]
-    Recebedor: Optional[Participante]
-    ItensPedido: List[ItemPedido]
+    codFilial: Optional[str]
+    numeroPedidoEmbarcador: Optional[str]
+    protocoloPedido: Optional[str]
+    codigoRota: Optional[str]
+    dataInicioCarregamento: Optional[str] # Usar str ou strawberry.DateTime
+    dataPrevisaoEntrega: Optional[str]    # Usar str ou strawberry.DateTime
+    observacao: Optional[str]
+    ordemEntrega: Optional[int]
+    pesoBruto: Optional[float]
+    tipoCarga: Optional[str]
+    tipoOperacao: Optional[str]
+    tipoPedido: Optional[str]
+    vendedor: Optional[str]
+    expedidor: Optional[Participante]
+    recebedor: Optional[Participante]
+    itensPedido: List[ItemPedido]
 
 @strawberry.type
 class Carregamento:
     """ Objeto aninhado principal, baseado no 'Carregamento' do C# """
-    NumeroCarga: Optional[str]
-    Filial: Optional[str]
-    ProtocoloCarga: Optional[str]
-    CpfMotorista: Optional[str]
-    NomeMotorista: Optional[str]
-    ModeloVeicular: Optional[str]
-    PlacaVeiculo: Optional[str]
-    TipoOperacao: Optional[str]
-    TipoVeiculo: Optional[str]
-    Transportador: Optional[str] # CNPJ
-    Pedidos: List[Pedido]
+    numeroCarga: Optional[str]
+    filial: Optional[str]
+    protocoloCarga: Optional[str]
+    cpfMotorista: Optional[str]
+    nomeMotorista: Optional[str]
+    modeloVeicular: Optional[str]
+    placaVeiculo: Optional[str]
+    tipoOperacao: Optional[str]
+    tipoVeiculo: Optional[str]
+    transportador: Optional[str] # CNPJ
+    pedidos: List[Pedido]
