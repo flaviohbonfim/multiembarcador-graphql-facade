@@ -42,8 +42,10 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
             numeroCarga=safe_get(linha, 'NumeroCarga'),
             filial=safe_get(linha, 'Filial', 'CodigoIntegracao'),
             protocoloCarga=safe_get(linha, 'ProtocoloCarga'),
-            cpfMotorista=safe_get(linha, 'Motoristas', 0, 'CPF'),
-            nomeMotorista=safe_get(linha, 'Motoristas', 0, 'Nome'),
+            # Motoristas é um OrderedDict com estrutura: {'Motorista': [{...}, {...}]}
+            # Similar a Produtos, precisamos acessar a chave 'Motorista' que contém a lista
+            cpfMotorista=safe_get(linha, 'Motoristas', 'Motorista', 0, 'CPF'),
+            nomeMotorista=safe_get(linha, 'Motoristas', 'Motorista', 0, 'Nome'),
             modeloVeicular=safe_get(linha, 'ModeloVeicular', 'CodigoIntegracao'),
             placaVeiculo=safe_get(linha, 'Veiculo', 'Placa'),
             tipoOperacao=safe_get(linha, 'TipoOperacao', 'CodigoIntegracao'),
