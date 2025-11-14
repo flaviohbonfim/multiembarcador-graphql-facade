@@ -204,7 +204,27 @@ query {
 }
 ```
 
-### Exemplo 3: Usando curl
+### Exemplo 3: Buscar por Código de Filial e Número da Carga
+
+```graphql
+query {
+  buscarCargaPorCodigosIntegracao(codigoFilial: "100006", numeroCarga: "15440482") {
+    numeroCarga
+    protocoloCarga
+    nomeMotorista
+    placaVeiculo
+    pedidos {
+      numeroPedidoEmbarcador
+      recebedor {
+        razaoSocial
+        cidade
+      }
+    }
+  }
+}
+```
+
+### Exemplo 4: Usando curl
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/graphql" \
@@ -264,11 +284,12 @@ graph LR
 
 ## 📐 Schema GraphQL
 
-### Query Principal
+### Queries Disponíveis
 
 ```graphql
 type Query {
   buscarCarga(protocolo: String!): Carregamento
+  buscarCargaPorCodigosIntegracao(codigoFilial: String!, numeroCarga: String!): Carregamento
 }
 ```
 
@@ -376,24 +397,6 @@ poetry run pytest
 ### Verificar Cache do Cliente SOAP
 
 O cache LRU mantém os 10 últimos clientes WSDL em memória. Para limpar o cache, reinicie o servidor.
-
----
-
-## 🗺 Roadmap
-
-### v0.2 (Próxima Versão)
-
-- [ ] Adicionar testes unitários e de integração
-- [ ] Implementar mutations (enviarCarga, cancelarCarga)
-- [ ] Adicionar paginação para grandes volumes de dados
-- [ ] Implementar autenticação/autorização na API GraphQL
-
-### v0.3 (Futuro)
-
-- [ ] Adicionar métricas e observabilidade (Prometheus, OpenTelemetry)
-- [ ] Suporte a múltiplos métodos SOAP
-- [ ] Documentação automática de schema com GraphQL SDL
-- [ ] Rate limiting e throttling
 
 ---
 

@@ -62,3 +62,54 @@ def chamar_buscar_carga(protocolo_str: str, wsdl_url: str, token: str) -> Option
     except Exception as e:
         print(f"Erro catastrófico ao chamar SOAP: {e}")
         return None
+
+def chamar_buscar_carga_por_codigos_integracao(codigo_filial: str, numero_carga: str, wsdl_url: str, token: str) -> Optional[List[dict]]:
+    """
+    Chama o método SOAP BuscarCargaPorCodigosIntegracao dinamicamente.
+    """
+    try:
+        # 1. Obter cliente (possivelmente cacheado)
+        client = get_zeep_client(wsdl_url=wsdl_url)
+
+        # 2. Criar o Header SOAP com o Token dinâmico
+        header = etree.Element(
+            '{Token}Token',
+            xmlns="Token"
+        )
+        header.text = token
+
+        # 3. Criar o payload baseado no XML de exemplo
+        # A estrutura esperada é:
+        # <tem:codigosIntegracao>
+        #   <dom:CodigoIntegracaoFilial>100006</dom:CodigoIntegracaoFilial>
+        #   <dom:NumeroCarga>15440482</dom:NumeroCarga>
+        # </tem:codigosIntegracao>
+
+        print(f"[SOAP] Criando payload com CodigoIntegracaoFilial: '{codigo_filial}', NumeroCarga: '{numero_carga}'")
+
+        # Criar objeto com a estrutura correta usando dicionário
+        # O Zeep automaticamente converte para o tipo SOAP correto
+        payload = {
+            'CodigoIntegracaoFilial': codigo_filial,
+            'NumeroCarga': numero_carga
+        }
+
+        # 4. Chamar o serviço
+        print(f"[SOAP] Chamando BuscarCargaPorCodigosIntegracao...")
+        response = client.service.BuscarCargaPorCodigosIntegracao(
+            codigosIntegracao=payload,
+            _soapheaders=[header]
+        )
+
+        # 5. Processar a resposta (mesmo formato do BuscarCarga)
+        # Caminho: BuscarCargaPorCodigosIntegracaoResult -> Objeto -> CargaIntegracao (lista)
+        if response and response.CodigoMensagem == 0 and response.Objeto and response.Objeto.CargaIntegracao:
+            # Serializa a resposta do Zeep para um dict/list Python padrão
+            return serialize_object(response.Objeto.CargaIntegracao)
+
+        print(f"[SOAP] Resposta vazia ou com erro: {response.CodigoMensagem} - {response.Mensagem}")
+        return None
+
+    except Exception as e:
+        print(f"Erro catastrófico ao chamar SOAP: {e}")
+        return None
