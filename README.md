@@ -106,25 +106,27 @@ poetry run uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload
 
 ## 🚀 Uso
 
-### 🎮 Interface Playground (Recomendado)
+### 🎮 Interface GraphiQL (Recomendado)
 
-A forma mais fácil de testar a API é através da **interface web interativa**:
+A forma mais fácil de testar e explorar a API é através do **GraphiQL customizado**:
 
 ```
-🌐 http://127.0.0.1:8000/playground
+🌐 http://127.0.0.1:8000/graphiql
 ```
 
-#### Funcionalidades do Playground:
+#### Funcionalidades do GraphiQL:
 
-- ✅ **Configuração de Headers**: Campos dedicados para `X-Target-WSDL` e `X-Auth-Token`
-- ✅ **Editor de Queries**: Syntax highlighting e autocompletar
-- ✅ **Execução Rápida**: Botão "Executar" ou atalho `Ctrl+Enter`
-- ✅ **Resultados Formatados**: JSON colorido com indicadores de sucesso/erro
+- ✅ **Configuração de Headers**: Campos dedicados no topo para `X-Target-WSDL` e `X-Auth-Token`
+- ✅ **Docs Explorer**: Navegação completa do Schema GraphQL (clique em "< Docs")
+- ✅ **Editor de Queries**: Syntax highlighting e autocompletar inteligente
+- ✅ **Execução de Queries**: Execute queries diretamente com os headers configurados
+- ✅ **Formatação Automática**: Prettify automático de queries e respostas
+- ✅ **Histórico**: Acesso ao histórico de queries executadas
 - ✅ **Query de Exemplo**: Exemplo pré-carregado para começar rapidamente
 
 <div align="center">
 
-![Playground Screenshot](https://img.shields.io/badge/Interface-Web%20Interativa-5183f5?style=for-the-badge)
+![GraphiQL Interface](https://img.shields.io/badge/Interface-GraphiQL%20Customizado-E10098?style=for-the-badge&logo=graphql)
 
 </div>
 
@@ -135,8 +137,7 @@ A forma mais fácil de testar a API é através da **interface web interativa**:
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
 | `/` | GET | Informações sobre a API |
-| `/graphiql` | GET | **GraphiQL** - Documentação interativa do Schema (Docs Explorer) |
-| `/playground` | GET | **Playground** - Interface de testes com suporte a headers |
+| `/graphiql` | GET | **GraphiQL** - Interface completa com Docs Explorer e suporte a headers |
 | `/graphql` | POST | API GraphQL (endpoint de produção) |
 
 #### Headers Obrigatórios
@@ -148,25 +149,7 @@ X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?w
 X-Auth-Token: seu-token-aqui
 ```
 
-### 📚 Explorar Documentação do Schema
-
-Para visualizar **todas as definições de tipos, queries e campos disponíveis**, acesse o **GraphiQL**:
-
-```
-🌐 http://127.0.0.1:8000/graphiql
-```
-
-#### Como usar o Docs Explorer:
-
-1. **Abra o GraphiQL** no navegador
-2. **Clique em "< Docs"** no canto superior direito da interface
-3. **Navegue pelo Schema**:
-   - Veja todas as **Queries** disponíveis (`buscarCarga`, `buscarCargaPorCodigosIntegracao`)
-   - Explore todos os **Types** (tipos): `Carregamento`, `Pedido`, `ItemPedido`, `Recebedor`, etc.
-   - Veja todos os **campos** de cada tipo com suas descrições e tipos de retorno
-4. **Clique em qualquer tipo** para ver seus campos detalhadamente
-
-> ⚠️ **Nota**: O GraphiQL não suporta headers customizados. Para **executar queries** com os headers `X-Target-WSDL` e `X-Auth-Token`, use o [Playground](#-interface-playground-recomendado) ou ferramentas como Postman/curl.
+> 💡 **Dica**: No GraphiQL, configure os headers nos campos no topo da interface antes de executar suas queries.
 
 ---
 
@@ -267,7 +250,7 @@ curl -X POST "http://127.0.0.1:8000/graphql" \
 multiembarcador-graphql-facade/
 ├── src/
 │   ├── __init__.py
-│   ├── main.py              # 🚀 Servidor FastAPI + Playground UI
+│   ├── main.py              # 🚀 Servidor FastAPI + GraphiQL customizado
 │   ├── models.py            # 📦 Tipos GraphQL (Strawberry)
 │   ├── soap_client.py       # 🔌 Cliente SOAP com cache (Zeep)
 │   ├── transformation.py    # 🔄 Lógica de transformação SOAP → GraphQL
@@ -295,7 +278,7 @@ graph LR
 
 | Componente | Responsabilidade |
 |------------|------------------|
-| **main.py** | Servidor FastAPI, rotas e Playground UI |
+| **main.py** | Servidor FastAPI, rotas e GraphiQL customizado |
 | **models.py** | Definição dos tipos GraphQL |
 | **soap_client.py** | Gerencia conexões SOAP com cache LRU |
 | **transformation.py** | Transforma dados planos em estrutura hierárquica |
