@@ -135,7 +135,8 @@ A forma mais fácil de testar a API é através da **interface web interativa**:
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
 | `/` | GET | Informações sobre a API |
-| `/playground` | GET | Interface web interativa |
+| `/graphiql` | GET | **GraphiQL** - Documentação interativa do Schema (Docs Explorer) |
+| `/playground` | GET | **Playground** - Interface de testes com suporte a headers |
 | `/graphql` | POST | API GraphQL (endpoint de produção) |
 
 #### Headers Obrigatórios
@@ -146,6 +147,26 @@ Todas as requisições para `/graphql` devem incluir:
 X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
 X-Auth-Token: seu-token-aqui
 ```
+
+### 📚 Explorar Documentação do Schema
+
+Para visualizar **todas as definições de tipos, queries e campos disponíveis**, acesse o **GraphiQL**:
+
+```
+🌐 http://127.0.0.1:8000/graphiql
+```
+
+#### Como usar o Docs Explorer:
+
+1. **Abra o GraphiQL** no navegador
+2. **Clique em "< Docs"** no canto superior direito da interface
+3. **Navegue pelo Schema**:
+   - Veja todas as **Queries** disponíveis (`buscarCarga`, `buscarCargaPorCodigosIntegracao`)
+   - Explore todos os **Types** (tipos): `Carregamento`, `Pedido`, `ItemPedido`, `Recebedor`, etc.
+   - Veja todos os **campos** de cada tipo com suas descrições e tipos de retorno
+4. **Clique em qualquer tipo** para ver seus campos detalhadamente
+
+> ⚠️ **Nota**: O GraphiQL não suporta headers customizados. Para **executar queries** com os headers `X-Target-WSDL` e `X-Auth-Token`, use o [Playground](#-interface-playground-recomendado) ou ferramentas como Postman/curl.
 
 ---
 

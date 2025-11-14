@@ -27,6 +27,13 @@ graphql_app = GraphQLRouter(
     context_getter=get_context
 )
 
+# Criar endpoint GraphiQL com documentação interativa
+graphiql_app = GraphQLRouter(
+    schema,
+    context_getter=get_context,
+    graphql_ide="graphiql"
+)
+
 # Criar o app FastAPI
 app = FastAPI(
     title="Multiembarcador GraphQL Facade",
@@ -38,6 +45,9 @@ app = FastAPI(
 # Montar o GraphQL no endpoint /graphql
 app.include_router(graphql_app, prefix="/graphql")
 
+# Montar o GraphiQL (com documentação interativa) no endpoint /graphiql
+app.include_router(graphiql_app, prefix="/graphiql")
+
 @app.get("/", include_in_schema=False)
 def read_root():
     return {
@@ -45,6 +55,7 @@ def read_root():
         "message": "Multiembarcador GraphQL Facade",
         "endpoints": {
             "graphql": "/graphql - API GraphQL (somente API)",
+            "graphiql": "/graphiql - GraphiQL com documentação do Schema (Docs Explorer)",
             "playground": "/playground - Interface de testes interativa com suporte a headers"
         }
     }
