@@ -138,6 +138,7 @@ A forma mais fácil de testar e explorar a API é através do **GraphiQL customi
 |----------|--------|-----------|
 | `/` | GET | Informações sobre a API |
 | `/graphiql` | GET | **GraphiQL** - Interface completa com Docs Explorer e suporte a headers |
+| `/scalar` | GET | **Scalar UI** - Interface de documentação e testes |
 | `/graphql` | POST | API GraphQL (endpoint de produção) |
 
 #### Headers Obrigatórios

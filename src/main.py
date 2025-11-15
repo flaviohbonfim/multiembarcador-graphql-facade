@@ -45,7 +45,8 @@ def read_root():
         "message": "Multiembarcador GraphQL Facade",
         "endpoints": {
             "graphql": "/graphql - API GraphQL (somente API)",
-            "graphiql": "/graphiql - GraphiQL com Docs Explorer e suporte a headers customizados"
+            "graphiql": "/graphiql - GraphiQL com Docs Explorer e suporte a headers customizados",
+            "scalar": "/scalar - Scalar UI - Interface de documentação e testes"
         }
     }
 
@@ -259,6 +260,174 @@ query {
                     shouldPersistHeaders: false
                 })
             );
+        });
+    </script>
+</body>
+</html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.get("/scalar", response_class=HTMLResponse, include_in_schema=False)
+async def scalarui():
+    """
+    Scalar UI customizado com suporte a headers customizados
+    """
+    html_content = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Scalar UI - Multiembarcador GraphQL Facade</title>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #scalar-ui {
+            height: calc(100vh - 60px);
+        }
+        #header-config {
+            background: #1a1d23;
+            padding: 12px 20px;
+            border-bottom: 1px solid #2d3139;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        #header-config h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #e8eaed;
+            flex-shrink: 0;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 11px;
+            color: #9aa0a6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .input-group input {
+            padding: 6px 10px;
+            background: #0f1419;
+            border: 1px solid #2d3139;
+            border-radius: 4px;
+            color: #e8eaed;
+            font-size: 12px;
+            min-width: 300px;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #5183f5;
+        }
+        .status-indicator {
+            margin-left: auto;
+            font-size: 11px;
+            color: #81c995;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #81c995;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-config">
+        <h1>🚀 Multiembarcador GraphQL Facade</h1>
+        <div class="input-group">
+            <label>X-Target-WSDL</label>
+            <input
+                type="text"
+                id="wsdl"
+                placeholder="URL do WSDL"
+                value="https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl"
+            >
+        </div>
+        <div class="input-group">
+            <label>X-Auth-Token</label>
+            <input
+                type="text"
+                id="token"
+                placeholder="Token de autenticação"
+                value="3a5cc98c141541e6bbc82bcc857c7176"
+            >
+        </div>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Scalar UI</span>
+        </div>
+    </div>
+    <div id="scalar-ui"></div>
+
+    <script id="api-reference" data-url="/graphql"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+
+    <script>
+        // Aguardar o Scalar estar disponível
+        window.addEventListener('DOMContentLoaded', () => {
+            // Função customFetch que injeta os headers
+            function scalarCustomFetch(url, options = {}) {
+                const wsdl = document.getElementById('wsdl').value;
+                const token = document.getElementById('token').value;
+
+                // Garantir que options.headers existe
+                if (!options.headers) {
+                    options.headers = {};
+                }
+
+                // Adicionar os headers customizados
+                if (wsdl) {
+                    options.headers['X-Target-WSDL'] = wsdl;
+                }
+
+                if (token) {
+                    options.headers['X-Auth-Token'] = token;
+                }
+
+                // Executar o fetch original com as opções modificadas
+                return fetch(url, options);
+            }
+
+            // Configurar e montar o Scalar UI
+            const configuration = {
+                spec: {
+                    url: '/graphql'
+                },
+                customFetch: scalarCustomFetch,
+                theme: 'purple',
+                layout: 'modern',
+                showSidebar: true
+            };
+
+            // Montar o Scalar UI
+            const apiReference = document.getElementById('scalar-ui');
+
+            // Usar o método mount do Scalar
+            if (window.ScalarApiReference) {
+                window.ScalarApiReference.mount(apiReference, configuration);
+            } else {
+                // Aguardar o Scalar carregar
+                setTimeout(() => {
+                    if (window.ScalarApiReference) {
+                        window.ScalarApiReference.mount(apiReference, configuration);
+                    }
+                }, 500);
+            }
         });
     </script>
 </body>
