@@ -1,7 +1,7 @@
 # src/main.py
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from strawberry.fastapi import GraphQLRouter
 import strawberry
 from .resolvers import Query
@@ -37,6 +37,222 @@ app = FastAPI(
 
 # Montar o GraphQL no endpoint /graphql
 app.include_router(graphql_app, prefix="/graphql")
+
+# --- Geração do OpenAPI Spec a partir do schema GraphQL ---
+def generate_openapi_from_graphql() -> Dict[str, Any]:
+    """
+    Gera um documento OpenAPI 3.0 a partir do schema GraphQL.
+    Esta é uma conversão simplificada que mapeia as queries GraphQL
+    para endpoints REST no formato OpenAPI.
+    """
+    return {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Multiembarcador GraphQL Facade - REST API",
+            "description": "API REST gerada a partir do schema GraphQL para visualização no Scalar UI. "
+                          "Forneça os headers X-Target-WSDL e X-Auth-Token em todas as requisições.",
+            "version": "0.1.0"
+        },
+        "servers": [
+            {
+                "url": "http://127.0.0.1:8000",
+                "description": "Servidor de Desenvolvimento"
+            }
+        ],
+        "paths": {
+            "/graphql": {
+                "post": {
+                    "summary": "Endpoint GraphQL Principal",
+                    "description": "Execute queries GraphQL através deste endpoint",
+                    "operationId": "graphqlQuery",
+                    "tags": ["GraphQL"],
+                    "parameters": [
+                        {
+                            "name": "X-Target-WSDL",
+                            "in": "header",
+                            "required": True,
+                            "schema": {"type": "string"},
+                            "description": "URL do WSDL do webservice SOAP",
+                            "example": "https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl"
+                        },
+                        {
+                            "name": "X-Auth-Token",
+                            "in": "header",
+                            "required": True,
+                            "schema": {"type": "string"},
+                            "description": "Token de autenticação",
+                            "example": "3a5cc98c141541e6bbc82bcc857c7176"
+                        }
+                    ],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {
+                                            "type": "string",
+                                            "description": "Query GraphQL",
+                                            "example": "query { buscarCarga(protocolo: \"6482243\") { numeroCarga nomeMotorista } }"
+                                        },
+                                        "variables": {
+                                            "type": "object",
+                                            "description": "Variáveis da query (opcional)"
+                                        }
+                                    },
+                                    "required": ["query"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Resposta bem-sucedida",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "type": "object",
+                                                "description": "Dados retornados pela query"
+                                            },
+                                            "errors": {
+                                                "type": "array",
+                                                "items": {"type": "object"},
+                                                "description": "Erros da query (se houver)"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "components": {
+            "schemas": {
+                "Carregamento": {
+                    "type": "object",
+                    "description": "Dados de um carregamento",
+                    "properties": {
+                        "numeroCarga": {"type": "string"},
+                        "filial": {"type": "string"},
+                        "protocoloCarga": {"type": "string"},
+                        "cpfMotorista": {"type": "string"},
+                        "nomeMotorista": {"type": "string"},
+                        "modeloVeicular": {"type": "string"},
+                        "placaVeiculo": {"type": "string"},
+                        "tipoOperacao": {"type": "string"},
+                        "tipoVeiculo": {"type": "string"},
+                        "transportador": {"type": "string"},
+                        "pedidos": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/Pedido"}
+                        }
+                    }
+                },
+                "Pedido": {
+                    "type": "object",
+                    "description": "Dados de um pedido",
+                    "properties": {
+                        "codFilial": {"type": "string"},
+                        "numeroPedidoEmbarcador": {"type": "string"},
+                        "protocoloPedido": {"type": "string"},
+                        "codigoRota": {"type": "string"},
+                        "dataInicioCarregamento": {"type": "string"},
+                        "dataPrevisaoEntrega": {"type": "string"},
+                        "observacao": {"type": "string"},
+                        "ordemEntrega": {"type": "integer"},
+                        "pesoBruto": {"type": "number"},
+                        "tipoCarga": {"type": "string"},
+                        "tipoOperacao": {"type": "string"},
+                        "tipoPedido": {"type": "string"},
+                        "vendedor": {"type": "string"},
+                        "expedidor": {"$ref": "#/components/schemas/Participante"},
+                        "recebedor": {"$ref": "#/components/schemas/Participante"},
+                        "itensPedido": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/ItemPedido"}
+                        }
+                    }
+                },
+                "Participante": {
+                    "type": "object",
+                    "description": "Dados de um participante (expedidor ou recebedor)",
+                    "properties": {
+                        "bairro": {"type": "string"},
+                        "cep": {"type": "string"},
+                        "cidade": {"type": "string"},
+                        "cnpj": {"type": "string"},
+                        "descricao": {"type": "string"},
+                        "endereco": {"type": "string"},
+                        "estado": {"type": "string"},
+                        "ibge": {"type": "string"},
+                        "ie": {"type": "string"},
+                        "logradouro": {"type": "string"},
+                        "numero": {"type": "string"},
+                        "razaoSocial": {"type": "string"}
+                    }
+                },
+                "ItemPedido": {
+                    "type": "object",
+                    "description": "Item de um pedido",
+                    "properties": {
+                        "codigoGrupoProduto": {"type": "string"},
+                        "codigoProduto": {"type": "string"},
+                        "descricaoGrupoProduto": {"type": "string"},
+                        "descricaoProduto": {"type": "string"},
+                        "metroCubico": {"type": "number"},
+                        "pesoUnitario": {"type": "number"},
+                        "quantidade": {"type": "number"},
+                        "valorUnitario": {"type": "number"}
+                    }
+                },
+                "DadosNotaFiscal": {
+                    "type": "object",
+                    "description": "Dados de uma Nota Fiscal",
+                    "properties": {
+                        "protocoloCarga": {"type": "string"},
+                        "protocoloPedido": {"type": "string"},
+                        "chaveAcesso": {"type": "string"},
+                        "cnpjExpedidor": {"type": "string"},
+                        "cnpjRecebedor": {"type": "string"},
+                        "dataEmissao": {"type": "string"},
+                        "numero": {"type": "string"},
+                        "serie": {"type": "string"},
+                        "pesoBruto": {"type": "number"},
+                        "pesoLiquido": {"type": "number"},
+                        "situacao": {"type": "string"},
+                        "valor": {"type": "number"}
+                    }
+                },
+                "NotaFiscalDetalhe": {
+                    "type": "object",
+                    "description": "Detalhe de uma Nota Fiscal incluindo XML",
+                    "properties": {
+                        "chaveAcesso": {"type": "string"},
+                        "xml": {"type": "string"}
+                    }
+                }
+            }
+        },
+        "tags": [
+            {
+                "name": "GraphQL",
+                "description": "Operações GraphQL"
+            }
+        ]
+    }
+
+@app.get("/openapi-graphql.json", response_class=JSONResponse, include_in_schema=False)
+async def openapi_graphql_spec():
+    """
+    Retorna o documento OpenAPI gerado a partir do schema GraphQL
+    """
+    return generate_openapi_from_graphql()
 
 @app.get("/", include_in_schema=False)
 def read_root():
@@ -270,24 +486,21 @@ query {
 @app.get("/scalar", response_class=HTMLResponse, include_in_schema=False)
 async def scalarui():
     """
-    Scalar UI customizado com suporte a headers customizados
+    Scalar UI customizado com suporte a headers customizados.
+    Usa o documento OpenAPI gerado a partir do schema GraphQL.
     """
     html_content = """
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Scalar UI - Multiembarcador GraphQL Facade</title>
     <style>
         body {
-            height: 100%;
             margin: 0;
-            width: 100%;
-            overflow: hidden;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        #scalar-ui {
-            height: calc(100vh - 60px);
         }
         #header-config {
             background: #1a1d23;
@@ -297,6 +510,9 @@ async def scalarui():
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         #header-config h1 {
             margin: 0;
@@ -344,6 +560,9 @@ async def scalarui():
             background: #81c995;
             border-radius: 50%;
         }
+        #api-reference {
+            min-height: calc(100vh - 60px);
+        }
     </style>
 </head>
 <body>
@@ -369,25 +588,38 @@ async def scalarui():
         </div>
         <div class="status-indicator">
             <div class="status-dot"></div>
-            <span>Scalar UI</span>
+            <span>Scalar UI (OpenAPI)</span>
         </div>
     </div>
-    <div id="scalar-ui"></div>
 
-    <script id="api-reference" data-url="/graphql"></script>
+    <div id="api-reference"></div>
+
+    <!-- Carregar o Scalar do CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 
     <script>
-        // Aguardar o Scalar estar disponível
+        // Aguardar o DOM estar pronto
         window.addEventListener('DOMContentLoaded', () => {
             // Função customFetch que injeta os headers
-            function scalarCustomFetch(url, options = {}) {
+            function scalarCustomFetch(input, init = {}) {
                 const wsdl = document.getElementById('wsdl').value;
                 const token = document.getElementById('token').value;
+
+                // Criar cópia das options
+                const options = { ...init };
 
                 // Garantir que options.headers existe
                 if (!options.headers) {
                     options.headers = {};
+                }
+
+                // Se headers for um Headers object, converter para objeto plain
+                if (options.headers instanceof Headers) {
+                    const plainHeaders = {};
+                    options.headers.forEach((value, key) => {
+                        plainHeaders[key] = value;
+                    });
+                    options.headers = plainHeaders;
                 }
 
                 // Adicionar os headers customizados
@@ -399,34 +631,47 @@ async def scalarui():
                     options.headers['X-Auth-Token'] = token;
                 }
 
+                console.log('Scalar fetch:', input, options);
+
                 // Executar o fetch original com as opções modificadas
-                return fetch(url, options);
+                return fetch(input, options);
             }
 
-            // Configurar e montar o Scalar UI
-            const configuration = {
-                spec: {
-                    url: '/graphql'
-                },
-                customFetch: scalarCustomFetch,
-                theme: 'purple',
-                layout: 'modern',
-                showSidebar: true
-            };
-
-            // Montar o Scalar UI
-            const apiReference = document.getElementById('scalar-ui');
-
-            // Usar o método mount do Scalar
-            if (window.ScalarApiReference) {
-                window.ScalarApiReference.mount(apiReference, configuration);
-            } else {
-                // Aguardar o Scalar carregar
-                setTimeout(() => {
-                    if (window.ScalarApiReference) {
-                        window.ScalarApiReference.mount(apiReference, configuration);
+            // Criar a referência do Scalar
+            if (window.Scalar && window.Scalar.createApiReference) {
+                window.Scalar.createApiReference('#api-reference', {
+                    spec: {
+                        url: '/openapi-graphql.json'
+                    },
+                    customFetch: scalarCustomFetch,
+                    theme: 'purple',
+                    layout: 'modern',
+                    showSidebar: true,
+                    defaultHttpClient: {
+                        targetKey: 'javascript',
+                        clientKey: 'fetch'
                     }
-                }, 500);
+                });
+                console.log('Scalar UI inicializado com sucesso!');
+            } else {
+                console.error('Scalar não está disponível. Aguardando...');
+                // Tentar novamente após um delay
+                setTimeout(() => {
+                    if (window.Scalar && window.Scalar.createApiReference) {
+                        window.Scalar.createApiReference('#api-reference', {
+                            spec: {
+                                url: '/openapi-graphql.json'
+                            },
+                            customFetch: scalarCustomFetch,
+                            theme: 'purple',
+                            layout: 'modern',
+                            showSidebar: true
+                        });
+                        console.log('Scalar UI inicializado com sucesso (retry)!');
+                    } else {
+                        console.error('Scalar ainda não disponível após retry');
+                    }
+                }, 1000);
             }
         });
     </script>
