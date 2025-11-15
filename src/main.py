@@ -486,8 +486,9 @@ query {
 @app.get("/scalar", response_class=HTMLResponse, include_in_schema=False)
 async def scalarui():
     """
-    Scalar UI customizado com suporte a headers customizados.
-    Usa o documento OpenAPI gerado a partir do schema GraphQL.
+    Scalar UI para visualização da API GraphQL via OpenAPI.
+    Os headers X-Target-WSDL e X-Auth-Token devem ser configurados
+    diretamente na interface de teste do Scalar.
     """
     html_content = """
 <!DOCTYPE html>
@@ -495,103 +496,25 @@ async def scalarui():
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Scalar UI - Multiembarcador GraphQL Facade</title>
+    <title>Scalar API Reference - Multiembarcador GraphQL Facade</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
         }
-        #header-config {
-            background: #1a1d23;
-            padding: 12px 20px;
-            border-bottom: 1px solid #2d3139;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        #header-config h1 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 500;
-            color: #e8eaed;
-            flex-shrink: 0;
-        }
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .input-group label {
-            font-size: 11px;
-            color: #9aa0a6;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .input-group input {
-            padding: 6px 10px;
-            background: #0f1419;
-            border: 1px solid #2d3139;
-            border-radius: 4px;
-            color: #e8eaed;
-            font-size: 12px;
-            min-width: 300px;
-        }
-        .input-group input:focus {
-            outline: none;
-            border-color: #5183f5;
-        }
-        .status-indicator {
-            margin-left: auto;
-            font-size: 11px;
-            color: #81c995;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #81c995;
-            border-radius: 50%;
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
         #api-reference {
-            min-height: calc(100vh - 60px);
+            height: 100vh;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div id="header-config">
-        <h1>🚀 Multiembarcador GraphQL Facade</h1>
-        <div class="input-group">
-            <label>X-Target-WSDL</label>
-            <input
-                type="text"
-                id="wsdl"
-                placeholder="URL do WSDL"
-                value="https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl"
-            >
-        </div>
-        <div class="input-group">
-            <label>X-Auth-Token</label>
-            <input
-                type="text"
-                id="token"
-                placeholder="Token de autenticação"
-                value="3a5cc98c141541e6bbc82bcc857c7176"
-            >
-        </div>
-        <div class="status-indicator">
-            <div class="status-dot"></div>
-            <span>Scalar UI (OpenAPI)</span>
-        </div>
-    </div>
-
     <div id="api-reference"></div>
 
     <!-- Carregar o Scalar do CDN -->
@@ -599,80 +522,35 @@ async def scalarui():
 
     <script>
         // Aguardar o DOM estar pronto
-        window.addEventListener('DOMContentLoaded', () => {
-            // Função customFetch que injeta os headers
-            function scalarCustomFetch(input, init = {}) {
-                const wsdl = document.getElementById('wsdl').value;
-                const token = document.getElementById('token').value;
-
-                // Criar cópia das options
-                const options = { ...init };
-
-                // Garantir que options.headers existe
-                if (!options.headers) {
-                    options.headers = {};
-                }
-
-                // Se headers for um Headers object, converter para objeto plain
-                if (options.headers instanceof Headers) {
-                    const plainHeaders = {};
-                    options.headers.forEach((value, key) => {
-                        plainHeaders[key] = value;
-                    });
-                    options.headers = plainHeaders;
-                }
-
-                // Adicionar os headers customizados
-                if (wsdl) {
-                    options.headers['X-Target-WSDL'] = wsdl;
-                }
-
-                if (token) {
-                    options.headers['X-Auth-Token'] = token;
-                }
-
-                console.log('Scalar fetch:', input, options);
-
-                // Executar o fetch original com as opções modificadas
-                return fetch(input, options);
-            }
-
+        document.addEventListener('DOMContentLoaded', () => {
             // Criar a referência do Scalar
-            if (window.Scalar && window.Scalar.createApiReference) {
-                window.Scalar.createApiReference('#api-reference', {
-                    spec: {
-                        url: '/openapi-graphql.json'
-                    },
-                    customFetch: scalarCustomFetch,
-                    theme: 'purple',
-                    layout: 'modern',
-                    showSidebar: true,
-                    defaultHttpClient: {
-                        targetKey: 'javascript',
-                        clientKey: 'fetch'
-                    }
-                });
-                console.log('Scalar UI inicializado com sucesso!');
-            } else {
-                console.error('Scalar não está disponível. Aguardando...');
-                // Tentar novamente após um delay
-                setTimeout(() => {
-                    if (window.Scalar && window.Scalar.createApiReference) {
-                        window.Scalar.createApiReference('#api-reference', {
-                            spec: {
-                                url: '/openapi-graphql.json'
-                            },
-                            customFetch: scalarCustomFetch,
-                            theme: 'purple',
-                            layout: 'modern',
-                            showSidebar: true
-                        });
-                        console.log('Scalar UI inicializado com sucesso (retry)!');
-                    } else {
-                        console.error('Scalar ainda não disponível após retry');
-                    }
-                }, 1000);
-            }
+            const initScalar = () => {
+                if (window.Scalar && window.Scalar.createApiReference) {
+                    window.Scalar.createApiReference('#api-reference', {
+                        spec: {
+                            url: '/openapi-graphql.json'
+                        },
+                        theme: 'purple',
+                        layout: 'modern',
+                        showSidebar: true,
+                        defaultHttpClient: {
+                            targetKey: 'javascript',
+                            clientKey: 'fetch'
+                        },
+                        // Configuração de metadados adicionais
+                        metaData: {
+                            title: 'Multiembarcador GraphQL Facade',
+                            description: 'Configure os headers X-Target-WSDL e X-Auth-Token nas requisições de teste'
+                        }
+                    });
+                    console.log('Scalar UI inicializado com sucesso!');
+                } else {
+                    console.error('Scalar não disponível, tentando novamente...');
+                    setTimeout(initScalar, 500);
+                }
+            };
+
+            initScalar();
         });
     </script>
 </body>
