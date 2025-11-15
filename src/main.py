@@ -496,73 +496,20 @@ async def scalarui():
     spec_json = json.dumps(openapi_spec)
 
     html_content = f"""
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Scalar API Reference - Multiembarcador GraphQL Facade</title>
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        html, body {{
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }}
-        #api-reference {{
-            height: 100vh;
-            width: 100%;
-        }}
-    </style>
 </head>
 <body>
-    <div id="api-reference"></div>
-
-    <!-- Carregar o Scalar do CDN -->
+    <!-- Usar o método de script tag que é mais confiável -->
+    <script
+        id="api-reference"
+        type="application/json"
+        data-configuration='{{"theme": "purple"}}'>{spec_json}</script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-
-    <script>
-        // Spec OpenAPI inline
-        const openApiSpec = {spec_json};
-
-        // Aguardar o DOM e o Scalar estarem prontos
-        document.addEventListener('DOMContentLoaded', () => {{
-            console.log('DOM pronto, inicializando Scalar...');
-
-            // Tentar inicializar o Scalar
-            const initScalar = () => {{
-                if (window.Scalar && window.Scalar.createApiReference) {{
-                    try {{
-                        console.log('Scalar encontrado, criando referência...');
-                        window.Scalar.createApiReference(
-                            document.getElementById('api-reference'),
-                            {{
-                                spec: {{
-                                    content: openApiSpec
-                                }},
-                                theme: 'purple',
-                                layout: 'modern',
-                                showSidebar: true
-                            }}
-                        );
-                        console.log('Scalar UI inicializado com sucesso!');
-                    }} catch (error) {{
-                        console.error('Erro ao inicializar Scalar:', error);
-                    }}
-                }} else {{
-                    console.log('Scalar ainda não disponível, aguardando...');
-                    setTimeout(initScalar, 100);
-                }}
-            }};
-
-            // Pequeno delay para garantir que o script foi carregado
-            setTimeout(initScalar, 100);
-        }});
-    </script>
 </body>
 </html>
     """
