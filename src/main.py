@@ -591,46 +591,83 @@ async def altair():
     Altair GraphQL Client - IDE GraphQL avançado com features modernas.
     Suporta múltiplos ambientes, pre-request scripts, upload de arquivos e mais.
     """
-    html_content = r"""
-<!DOCTYPE html>
+    html_content = """
+<!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Altair GraphQL Client</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-    </style>
-    <!-- Carregar Altair via CDN com versão específica -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/altair-static@5.3.3/build/dist/styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/altair-static@5.3.3/build/dist/altair.min.js"></script>
+  <meta charset="utf-8">
+  <title>Altair GraphQL Client - Multiembarcador Facade</title>
+  <base href="./">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/altair-static/build/styles.css"
+        rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    app-root {
+      display: block;
+      height: 100%;
+    }
+  </style>
 </head>
 <body>
-    <div id="altair"></div>
-    <script>
-        // Aguardar o documento estar pronto
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM pronto, inicializando Altair...');
+  <app-root>
+    <style>
+      .loading-screen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #1d1d1d;
+        color: #fff;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+    </style>
+    <div class="loading-screen">
+      <div class="loading-screen-inner">
+        <div class="loading-screen-logo-container">
+          <h2>⚡ Carregando Altair GraphQL Client...</h2>
+        </div>
+      </div>
+    </div>
+  </app-root>
 
-            // Verificar se AltairGraphQL está disponível
-            if (typeof AltairGraphQL !== 'undefined') {
-                console.log('AltairGraphQL encontrado, criando instância...');
+  <script type="text/javascript"
+          src="https://cdn.jsdelivr.net/npm/altair-static/build/main.js">
+  </script>
 
-                try {
-                    // Criar instância do Altair
-                    const altairInstance = AltairGraphQL.create(document.getElementById('altair'), {
-                        endpointURL: '/graphql',
-                        initialQuery: \`# Bem-vindo ao Altair GraphQL Client!
+  <script>
+    // Configurar Altair com endpoint e headers pré-configurados
+    window.addEventListener('load', function() {
+      console.log('Window loaded, initializing Altair...');
+
+      if (typeof AltairGraphQL !== 'undefined') {
+        console.log('AltairGraphQL found, setting options...');
+
+        var altairOptions = {
+          endpointURL: '/graphql',
+          initialHeaders: {
+            'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
+            'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
+          },
+          initialQuery: `# Bem-vindo ao Altair GraphQL Client! ⚡
 #
-# IMPORTANTE: Configure os headers abaixo no painel "Set Headers":
-# 1. Clique em "Set Headers" no menu superior
-# 2. Adicione os headers:
-#    - X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
-#    - X-Auth-Token: 3a5cc98c141541e6bbc82bcc857c7176
+# Os headers X-Target-WSDL e X-Auth-Token já estão pré-configurados.
+# Você pode modificá-los no painel "Set Headers" (ícone de engrenagem) se necessário.
+#
+# Features disponíveis:
+# - 📝 Editor com syntax highlighting e autocomplete
+# - 🔍 Explorador de documentação GraphQL
+# - 📊 Histórico de queries
+# - 🎨 Múltiplos temas (dark/light)
+# - 🌍 Suporte a múltiplos ambientes
+# - 📤 Upload de arquivos
+# - 🔔 Subscriptions GraphQL
 #
 # Exemplo de query:
 
@@ -648,35 +685,33 @@ query BuscarCargaExemplo {
         cidade
         estado
       }
+      itensPedido {
+        descricaoProduto
+        quantidade
+        valorUnitario
+      }
     }
   }
-}\`,
-                        initialHeaders: {
-                            'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
-                            'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
-                        },
-                        initialSettings: {
-                            theme: 'dark',
-                            language: 'en-US',
-                            addQueryDepthLimit: 5,
-                            tabSize: 2,
-                            enableExperimental: true
-                        }
-                    });
+}`,
+          initialSettings: {
+            theme: 'dark',
+            language: 'en-US',
+            addQueryDepthLimit: 7,
+            tabSize: 2
+          }
+        };
 
-                    console.log('Altair inicializado com sucesso!');
-                } catch (error) {
-                    console.error('Erro ao inicializar Altair:', error);
-                    document.getElementById('altair').innerHTML =
-                        '<div style="padding: 20px; color: red;">Erro ao carregar Altair: ' + error.message + '</div>';
-                }
-            } else {
-                console.error('AltairGraphQL não está disponível!');
-                document.getElementById('altair').innerHTML =
-                    '<div style="padding: 20px; color: red;">Erro: Altair GraphQL não foi carregado corretamente.</div>';
-            }
-        });
-    </script>
+        try {
+          AltairGraphQL.init(altairOptions);
+          console.log('Altair initialized successfully!');
+        } catch (error) {
+          console.error('Error initializing Altair:', error);
+        }
+      } else {
+        console.error('AltairGraphQL is not defined!');
+      }
+    });
+  </script>
 </body>
 </html>
     """
