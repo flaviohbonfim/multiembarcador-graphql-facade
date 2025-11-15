@@ -1,9 +1,9 @@
 # src/resolvers.py
 import strawberry
 from typing import Optional, List
-from .models import Carregamento, DadosNotaFiscal
-from .soap_client import chamar_buscar_carga, chamar_buscar_carga_por_codigos_integracao, chamar_buscar_notas_fiscais
-from .transformation import transformar_carga_integracao, transformar_nota_fiscal
+from .models import Carregamento, DadosNotaFiscal, NotaFiscalDetalhe
+from .soap_client import chamar_buscar_carga, chamar_buscar_carga_por_codigos_integracao, chamar_buscar_notas_fiscais, chamar_buscar_nota_fiscal_por_chave
+from .transformation import transformar_carga_integracao, transformar_nota_fiscal, transformar_nota_fiscal_detalhe
 from fastapi import HTTPException
 
 @strawberry.type
@@ -163,3 +163,53 @@ class Query:
         )
 
         return notas_transformadas
+
+    @strawberry.field
+    def buscarNotaFiscalPorChave(
+        self,
+        chaveNFe: str,
+        info: strawberry.Info
+    ) -> Optional[NotaFiscalDetalhe]:
+        """
+        Busca o XML de uma Nota Fiscal específica pela chave.
+        Usa o WSDL do CTe (endpoint e token via headers).
+        """
+
+        # 1. Acessar o contexto para ler a requisição (e os headers)
+        request = info.context.get("request")
+        if not request:
+            raise HTTPException(status_code=500, detail="Contexto da requisição não encontrado.")
+
+        # 2. Ler os headers dinâmicos
+        target_wsdl_url = request.headers.get("X-Target-WSDL")
+        target_token = request.headers.get("X-Auth-Token")
+
+        # 3. Validar os headers
+        if not target_wsdl_url or not target_token:
+            print("Erro: Headers X-Target-WSDL ou X-Auth-Token não fornecidos.")
+            raise HTTPException(
+                status_code=400,
+                detail="Headers X-Target-WSDL e X-Auth-Token são obrigatórios."
+            )
+
+        print(f"[Query] buscando Detalhe da NF-e {chaveNFe} em {target_wsdl_url}")
+
+        # 4. Chamar o cliente SOAP (nova função)
+        raw_data = chamar_buscar_nota_fiscal_por_chave(
+            chave_nfe=chaveNFe,
+            wsdl_url=target_wsdl_url,
+            token=target_token
+        )
+
+        if raw_data is None:
+            print("Nenhum dado retornado do SOAP (CTe.BuscarNotaFiscal).")
+            return None # Retorna null em caso de erro ou se não achou
+
+        print(f"[Query] Recebido 1 registro de NF-e. Transformando...")
+
+        # 5. Chamar a função de transformação (nova função)
+        nota_transformada = transformar_nota_fiscal_detalhe(
+            nota=raw_data
+        )
+
+        return nota_transformada

@@ -175,3 +175,45 @@ def chamar_buscar_notas_fiscais(protocolo_carga: str, inicio: int, limite: int, 
     except Exception as e:
         print(f"Erro catastrófico ao chamar SOAP (NFe): {e}")
         return None
+
+def chamar_buscar_nota_fiscal_por_chave(chave_nfe: str, wsdl_url: str, token: str) -> Optional[dict]:
+    """
+    Chama o método SOAP BuscarNotaFiscal (do CTe.svc) dinamicamente.
+    Espera um único objeto como resposta.
+    """
+    try:
+        # 1. Obter cliente (possivelmente cacheado)
+        client = get_zeep_client(wsdl_url=wsdl_url)
+
+        # 2. Criar o Header SOAP com o Token dinâmico
+        header = etree.Element(
+            '{Token}Token',
+            xmlns="Token"
+        )
+        header.text = token
+
+        # 3. Chamar o serviço (request body simples)
+        # <tem:BuscarNotaFiscal>
+        #   <tem:chaveNFe>...</tem:chaveNFe>
+        # </tem:BuscarNotaFiscal>
+
+        print(f"[SOAP] Chamando BuscarNotaFiscal com chaveNFe={chave_nfe}")
+
+        response = client.service.BuscarNotaFiscal(
+            chaveNFe=chave_nfe,
+            _soapheaders=[header]
+        )
+
+        # 4. Processar a resposta (baseado no XML de response)
+        # Caminho: BuscarNotaFiscalResult -> Objeto
+        # 'Objeto' aqui é um único item, não uma lista.
+        if response and response.CodigoMensagem == 0 and response.Objeto:
+            # Serializa o objeto singular
+            return serialize_object(response.Objeto)
+
+        print(f"[SOAP] Resposta vazia ou com erro: {response.CodigoMensagem} - {response.Mensagem}")
+        return None
+
+    except Exception as e:
+        print(f"Erro catastrófico ao chamar SOAP (CTe.BuscarNotaFiscal): {e}")
+        return None

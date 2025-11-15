@@ -84,3 +84,12 @@ class DadosNotaFiscal:
     pesoLiquido: Optional[float]
     situacao: Optional[str]      # x.SituacaoNFeSefaz.ToString()
     valor: Optional[float]
+
+@strawberry.type
+class NotaFiscalDetalhe:
+    """
+    Representa o detalhe de uma NFe, incluindo seu XML.
+    Retorno do método BuscarNotaFiscal do CTe.svc.
+    """
+    chaveAcesso: Optional[str]
+    xml: Optional[str]
