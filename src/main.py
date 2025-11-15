@@ -604,24 +604,33 @@ async def altair():
             padding: 0;
             overflow: hidden;
         }
-        #altair {
-            height: 100vh;
-            width: 100%;
-        }
     </style>
+    <!-- Carregar Altair via CDN com versão específica -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/altair-static@5.3.3/build/dist/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/altair-static@5.3.3/build/dist/altair.min.js"></script>
 </head>
 <body>
     <div id="altair"></div>
-    <script src="https://cdn.jsdelivr.net/npm/altair-static@latest/build/dist/cdn/altair.min.js"></script>
     <script>
-        // Configuração do Altair
-        AltairGraphQL.init({
-            endpointURL: '/graphql',
-            initialQuery: `# Bem-vindo ao Altair GraphQL Client!
+        // Aguardar o documento estar pronto
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM pronto, inicializando Altair...');
+
+            // Verificar se AltairGraphQL está disponível
+            if (typeof AltairGraphQL !== 'undefined') {
+                console.log('AltairGraphQL encontrado, criando instância...');
+
+                try {
+                    // Criar instância do Altair
+                    const altairInstance = AltairGraphQL.create(document.getElementById('altair'), {
+                        endpointURL: '/graphql',
+                        initialQuery: \`# Bem-vindo ao Altair GraphQL Client!
 #
-# Configure os headers no painel "Set Headers" à direita:
-# - X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
-# - X-Auth-Token: 3a5cc98c141541e6bbc82bcc857c7176
+# IMPORTANTE: Configure os headers abaixo no painel "Set Headers":
+# 1. Clique em "Set Headers" no menu superior
+# 2. Adicione os headers:
+#    - X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
+#    - X-Auth-Token: 3a5cc98c141541e6bbc82bcc857c7176
 #
 # Exemplo de query:
 
@@ -641,26 +650,30 @@ query BuscarCargaExemplo {
       }
     }
   }
-}`,
-            initialHeaders: {
-                'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
-                'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
-            },
-            initialEnvironments: {
-                base: {
-                    title: 'Produção',
-                    variables: {
-                        wsdl: 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
-                        token: '3a5cc98c141541e6bbc82bcc857c7176'
-                    }
+}\`,
+                        initialHeaders: {
+                            'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
+                            'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
+                        },
+                        initialSettings: {
+                            theme: 'dark',
+                            language: 'en-US',
+                            addQueryDepthLimit: 5,
+                            tabSize: 2,
+                            enableExperimental: true
+                        }
+                    });
+
+                    console.log('Altair inicializado com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao inicializar Altair:', error);
+                    document.getElementById('altair').innerHTML =
+                        '<div style="padding: 20px; color: red;">Erro ao carregar Altair: ' + error.message + '</div>';
                 }
-            },
-            instanceStorageNamespace: 'multiembarcador-graphql',
-            initialSettings: {
-                theme: 'dark',
-                language: 'pt-BR',
-                addQueryDepthLimit: 5,
-                tabSize: 2
+            } else {
+                console.error('AltairGraphQL não está disponível!');
+                document.getElementById('altair').innerHTML =
+                    '<div style="padding: 20px; color: red;">Erro: Altair GraphQL não foi carregado corretamente.</div>';
             }
         });
     </script>
