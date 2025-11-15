@@ -113,3 +113,57 @@ def chamar_buscar_carga_por_codigos_integracao(codigo_filial: str, numero_carga:
     except Exception as e:
         print(f"Erro catastrófico ao chamar SOAP: {e}")
         return None
+
+def chamar_buscar_notas_fiscais(protocolo_carga: str, inicio: int, limite: int, wsdl_url: str, token: str) -> Optional[List[dict]]:
+    """
+    Chama o método SOAP BuscarNotasFiscaisVinculadas dinamicamente.
+    """
+    try:
+        # 1. Obter cliente (possivelmente cacheado)
+        # Importante: o wsdl_url aqui deve ser o da NFe.svc
+        client = get_zeep_client(wsdl_url=wsdl_url)
+
+        # 2. Criar o Header SOAP com o Token dinâmico
+        header = etree.Element(
+            '{Token}Token',
+            xmlns="Token"
+        )
+        header.text = token
+
+        # 3. Chamar o serviço
+        # O corpo da requisição é simples, sem tipos complexos aninhados:
+        # <tem:BuscarNotasFiscaisVinculadas>
+        #   <tem:protocoloCarga>...</tem:protocoloCarga>
+        #   <tem:inicio>...</tem:inicio>
+        #   <tem:limite>...</tem:limite>
+        # </tem:BuscarNotasFiscaisVinculadas>
+        # Zeep mapeia isso diretamente para os argumentos da função.
+
+        print(f"[SOAP] Chamando BuscarNotasFiscaisVinculadas com protocoloCarga={protocolo_carga}, inicio={inicio}, limite={limite}")
+
+        response = client.service.BuscarNotasFiscaisVinculadas(
+            protocoloCarga=protocolo_carga,
+            inicio=inicio,
+            limite=limite,
+            _soapheaders=[header]
+        )
+
+        # 4. Processar a resposta (baseado no response.txt)
+        # Caminho: BuscarNotasFiscaisVinculadasResult -> Objeto -> Itens -> NotaFiscal (lista)
+        if response and response.CodigoMensagem == 0 and response.Objeto and response.Objeto.Itens:
+            # A lista de notas está dentro de Itens.NotaFiscal
+            # Se 'Itens' estiver presente mas 'NotaFiscal' não (sem notas),
+            # serialize_object lidará com isso e retornará None ou uma lista vazia.
+            notas_fiscais = response.Objeto.Itens.get('NotaFiscal')
+            if notas_fiscais:
+                return serialize_object(notas_fiscais)
+            else:
+                print("[SOAP] Resposta OK, mas sem notas fiscais (Itens.NotaFiscal está vazio).")
+                return [] # Retorna lista vazia
+
+        print(f"[SOAP] Resposta vazia ou com erro: {response.CodigoMensagem} - {response.Mensagem}")
+        return None
+
+    except Exception as e:
+        print(f"Erro catastrófico ao chamar SOAP (NFe): {e}")
+        return None

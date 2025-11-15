@@ -65,3 +65,22 @@ class Carregamento:
     tipoVeiculo: Optional[str]
     transportador: Optional[str] # CNPJ
     pedidos: List[Pedido]
+
+@strawberry.type
+class DadosNotaFiscal:
+    """
+    Representa os dados transformados de uma Nota Fiscal,
+    baseado no transformer C#.
+    """
+    protocoloCarga: str # O protocoloCarga passado como argumento
+    protocoloPedido: Optional[str]
+    chaveAcesso: Optional[str]
+    cnpjExpedidor: Optional[str] # x.Emitente.CPFCNPJ
+    cnpjRecebedor: Optional[str] # x.Destinatario.CPFCNPJ
+    dataEmissao: Optional[str]
+    numero: Optional[str]
+    serie: Optional[str]
+    pesoBruto: Optional[float]
+    pesoLiquido: Optional[float]
+    situacao: Optional[str]      # x.SituacaoNFeSefaz.ToString()
+    valor: Optional[float]
