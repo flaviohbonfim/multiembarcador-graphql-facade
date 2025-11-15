@@ -1,6 +1,6 @@
 # src/transformation.py
 from typing import List, Optional, Any, Dict
-from .models import Carregamento, Pedido, ItemPedido, Participante, DadosNotaFiscal
+from .models import Carregamento, Pedido, ItemPedido, Participante, DadosNotaFiscal, NotaFiscalDetalhe
 
 def safe_get(data: Dict, *keys: Any) -> Optional[Any]:
     """
@@ -164,3 +164,21 @@ def transformar_nota_fiscal(notas: List[Dict], protocolo_carga_str: str) -> List
     except Exception as e:
         print(f"Erro catastrófico ao transformar dados da Nota Fiscal: {e}")
         return [] # Retorna lista vazia em caso de erro
+
+def transformar_nota_fiscal_detalhe(nota: Dict) -> Optional[NotaFiscalDetalhe]:
+    """
+    Transforma o objeto de resposta do BuscarNotaFiscal
+    no tipo NotaFiscalDetalhe.
+    """
+    if not nota:
+        return None
+
+    try:
+        # Lógica de transformação simples: ChaveAcesso e Xml
+        return NotaFiscalDetalhe(
+            chaveAcesso=safe_get(nota, 'ChaveNFe'),
+            xml=safe_get(nota, 'XML')
+        )
+    except Exception as e:
+        print(f"Erro catastrófico ao transformar dados do detalhe da Nota Fiscal: {e}")
+        return None # Retorna null em caso de erro
