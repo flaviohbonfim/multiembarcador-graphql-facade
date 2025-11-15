@@ -261,8 +261,11 @@ def read_root():
         "message": "Multiembarcador GraphQL Facade",
         "endpoints": {
             "graphql": "/graphql - API GraphQL (somente API)",
-            "graphiql": "/graphiql - GraphiQL com Docs Explorer e suporte a headers customizados",
-            "scalar": "/scalar - Scalar UI - Interface de documentação e testes"
+            "graphiql": "/graphiql - GraphiQL IDE com Docs Explorer e headers customizados",
+            "altair": "/altair - Altair GraphQL Client - IDE avançado com features modernas",
+            "voyager": "/voyager - GraphQL Voyager - Visualização gráfica do schema",
+            "scalar": "/scalar - Scalar UI - Documentação OpenAPI moderna",
+            "openapi": "/openapi-graphql.json - Documento OpenAPI gerado do schema GraphQL"
         }
     }
 
@@ -510,6 +513,157 @@ async def scalarui():
         type="application/json"
         data-configuration='{{"theme": "purple"}}'>{spec_json}</script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.get("/voyager", response_class=HTMLResponse, include_in_schema=False)
+async def voyager():
+    """
+    GraphQL Voyager - Visualização interativa do schema GraphQL como um grafo.
+    Mostra todas as relações entre tipos de forma visual e intuitiva.
+    """
+    html_content = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GraphQL Voyager - Schema Visualization</title>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+        #voyager {
+            height: 100vh;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/react@16/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@16/umd/react-dom.production.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.css" />
+    <script src="https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.min.js"></script>
+</head>
+<body>
+    <div id="voyager">Carregando GraphQL Voyager...</div>
+    <script>
+        // Função para fazer introspecção com headers customizados
+        function introspectionProvider(query) {
+            // Headers padrão - usuário pode modificar no código se necessário
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
+                'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
+            };
+
+            return fetch('/graphql', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ query: query }),
+            }).then(response => response.json());
+        }
+
+        // Renderizar o Voyager
+        GraphQLVoyager.init(document.getElementById('voyager'), {
+            introspection: introspectionProvider,
+            displayOptions: {
+                rootType: 'Query',
+                skipRelay: false,
+                skipDeprecated: false,
+                showLeafFields: true,
+                sortByAlphabet: true
+            },
+            hideDocs: false,
+            hideSettings: false
+        });
+    </script>
+</body>
+</html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.get("/altair", response_class=HTMLResponse, include_in_schema=False)
+async def altair():
+    """
+    Altair GraphQL Client - IDE GraphQL avançado com features modernas.
+    Suporta múltiplos ambientes, pre-request scripts, upload de arquivos e mais.
+    """
+    html_content = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Altair GraphQL Client</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #altair {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="altair"></div>
+    <script src="https://cdn.jsdelivr.net/npm/altair-static@latest/build/dist/cdn/altair.min.js"></script>
+    <script>
+        // Configuração do Altair
+        AltairGraphQL.init({
+            endpointURL: '/graphql',
+            initialQuery: `# Bem-vindo ao Altair GraphQL Client!
+#
+# Configure os headers no painel "Set Headers" à direita:
+# - X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
+# - X-Auth-Token: 3a5cc98c141541e6bbc82bcc857c7176
+#
+# Exemplo de query:
+
+query BuscarCargaExemplo {
+  buscarCarga(protocolo: "6482243") {
+    numeroCarga
+    nomeMotorista
+    placaVeiculo
+    transportador
+    pedidos {
+      numeroPedidoEmbarcador
+      pesoBruto
+      recebedor {
+        razaoSocial
+        cidade
+        estado
+      }
+    }
+  }
+}`,
+            initialHeaders: {
+                'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
+                'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
+            },
+            initialEnvironments: {
+                base: {
+                    title: 'Produção',
+                    variables: {
+                        wsdl: 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
+                        token: '3a5cc98c141541e6bbc82bcc857c7176'
+                    }
+                }
+            },
+            instanceStorageNamespace: 'multiembarcador-graphql',
+            initialSettings: {
+                theme: 'dark',
+                language: 'pt-BR',
+                addQueryDepthLimit: 5,
+                tabSize: 2
+            }
+        });
+    </script>
 </body>
 </html>
     """

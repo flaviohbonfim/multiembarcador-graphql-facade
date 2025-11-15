@@ -137,10 +137,45 @@ A forma mais fácil de testar e explorar a API é através do **GraphiQL customi
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
 | `/` | GET | Informações sobre a API |
-| `/graphiql` | GET | **GraphiQL** - Interface completa com Docs Explorer e suporte a headers |
-| `/scalar` | GET | **Scalar UI** - Interface OpenAPI moderna para documentação e testes |
-| `/graphql` | POST | API GraphQL (endpoint de produção) |
-| `/openapi-graphql.json` | GET | Documento OpenAPI gerado a partir do schema GraphQL |
+| `/graphql` | POST | **API GraphQL** (endpoint de produção) |
+| `/graphiql` | GET | **GraphiQL IDE** - Interface leve com Docs Explorer |
+| `/altair` | GET | **Altair GraphQL Client** - IDE avançado com features modernas |
+| `/voyager` | GET | **GraphQL Voyager** - Visualização gráfica do schema |
+| `/scalar` | GET | **Scalar UI** - Documentação OpenAPI moderna |
+| `/openapi-graphql.json` | GET | Documento OpenAPI gerado do schema GraphQL |
+
+### 🎨 Ferramentas de Documentação e Testes
+
+Este projeto oferece **4 interfaces diferentes** para trabalhar com a API GraphQL, cada uma com suas próprias vantagens:
+
+#### 🔵 GraphiQL (`/graphiql`)
+- ✅ **Leve e rápido** - Interface clássica do GraphQL
+- ✅ **Docs Explorer** integrado
+- ✅ **Autocomplete** e syntax highlighting
+- ✅ **Ideal para**: Desenvolvimento rápido e testes básicos
+
+#### 🟣 Altair GraphQL Client (`/altair`)
+- ✅ **IDE completo** - Interface moderna e poderosa
+- ✅ **Múltiplos ambientes** (dev, staging, prod)
+- ✅ **Pre-request scripts** - Headers dinâmicos
+- ✅ **Upload de arquivos** via GraphQL
+- ✅ **Subscriptions** (GraphQL real-time)
+- ✅ **Tema dark/light** - Múltiplos idiomas
+- ✅ **Ideal para**: Desenvolvimento avançado e testes complexos
+
+#### 🔴 GraphQL Voyager (`/voyager`)
+- ✅ **Visualização gráfica** - Schema como grafo interativo
+- ✅ **Relações entre tipos** - Veja conexões visualmente
+- ✅ **Zoom e busca** - Navegação intuitiva
+- ✅ **Documentação visual** - Perfeito para apresentações
+- ✅ **Ideal para**: Entender a estrutura do schema e design de dados
+
+#### 🟠 Scalar UI (`/scalar`)
+- ✅ **Documentação OpenAPI** - Interface moderna
+- ✅ **API Reference** completa
+- ✅ **Try it out** integrado
+- ✅ **Tema purple** customizado
+- ✅ **Ideal para**: Documentação pública e stakeholders
 
 #### Headers Obrigatórios
 
