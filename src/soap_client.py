@@ -151,15 +151,23 @@ def chamar_buscar_notas_fiscais(protocolo_carga: str, inicio: int, limite: int, 
         # 4. Processar a resposta (baseado no response.txt)
         # Caminho: BuscarNotasFiscaisVinculadasResult -> Objeto -> Itens -> NotaFiscal (lista)
         if response and response.CodigoMensagem == 0 and response.Objeto and response.Objeto.Itens:
+            # Primeiro serializa o objeto Itens para um dict Python
+            itens_serializado = serialize_object(response.Objeto.Itens)
+
             # A lista de notas está dentro de Itens.NotaFiscal
-            # Se 'Itens' estiver presente mas 'NotaFiscal' não (sem notas),
-            # serialize_object lidará com isso e retornará None ou uma lista vazia.
-            notas_fiscais = response.Objeto.Itens.get('NotaFiscal')
-            if notas_fiscais:
-                return serialize_object(notas_fiscais)
+            if itens_serializado and isinstance(itens_serializado, dict):
+                notas_fiscais = itens_serializado.get('NotaFiscal')
+                if notas_fiscais:
+                    return notas_fiscais if isinstance(notas_fiscais, list) else [notas_fiscais]
+                else:
+                    print("[SOAP] Resposta OK, mas sem notas fiscais (Itens.NotaFiscal está vazio).")
+                    return [] # Retorna lista vazia
+            elif itens_serializado and isinstance(itens_serializado, list):
+                # Se Itens já for diretamente a lista de notas
+                return itens_serializado
             else:
-                print("[SOAP] Resposta OK, mas sem notas fiscais (Itens.NotaFiscal está vazio).")
-                return [] # Retorna lista vazia
+                print("[SOAP] Resposta OK, mas estrutura de Itens inesperada.")
+                return []
 
         print(f"[SOAP] Resposta vazia ou com erro: {response.CodigoMensagem} - {response.Mensagem}")
         return None
