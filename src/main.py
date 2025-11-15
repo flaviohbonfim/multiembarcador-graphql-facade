@@ -590,84 +590,22 @@ async def altair():
     """
     Altair GraphQL Client - IDE GraphQL avançado com features modernas.
     Suporta múltiplos ambientes, pre-request scripts, upload de arquivos e mais.
+
+    Usa o Altair hospedado online com configuração via URL parameters.
     """
-    html_content = """
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Altair GraphQL Client - Multiembarcador Facade</title>
-  <base href="./">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/altair-static/build/styles.css"
-        rel="stylesheet"/>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-    app-root {
-      display: block;
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-  <app-root>
-    <style>
-      .loading-screen {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background: #1d1d1d;
-        color: #fff;
-        font-family: system-ui, -apple-system, sans-serif;
-      }
-    </style>
-    <div class="loading-screen">
-      <div class="loading-screen-inner">
-        <div class="loading-screen-logo-container">
-          <h2>⚡ Carregando Altair GraphQL Client...</h2>
-        </div>
-      </div>
-    </div>
-  </app-root>
+    # Configurações para passar ao Altair via URL
+    import urllib.parse
+    import json
 
-  <script type="text/javascript"
-          src="https://cdn.jsdelivr.net/npm/altair-static/build/main.js">
-  </script>
+    endpoint_url = "http://127.0.0.1:8000/graphql"
 
-  <script>
-    // Configurar Altair com endpoint e headers pré-configurados
-    window.addEventListener('load', function() {
-      console.log('Window loaded, initializing Altair...');
-
-      if (typeof AltairGraphQL !== 'undefined') {
-        console.log('AltairGraphQL found, setting options...');
-
-        var altairOptions = {
-          endpointURL: '/graphql',
-          initialHeaders: {
-            'X-Target-WSDL': 'https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl',
-            'X-Auth-Token': '3a5cc98c141541e6bbc82bcc857c7176'
-          },
-          initialQuery: `# Bem-vindo ao Altair GraphQL Client! ⚡
+    initial_query = """# Bem-vindo ao Altair GraphQL Client! ⚡
 #
-# Os headers X-Target-WSDL e X-Auth-Token já estão pré-configurados.
-# Você pode modificá-los no painel "Set Headers" (ícone de engrenagem) se necessário.
-#
-# Features disponíveis:
-# - 📝 Editor com syntax highlighting e autocomplete
-# - 🔍 Explorador de documentação GraphQL
-# - 📊 Histórico de queries
-# - 🎨 Múltiplos temas (dark/light)
-# - 🌍 Suporte a múltiplos ambientes
-# - 📤 Upload de arquivos
-# - 🔔 Subscriptions GraphQL
+# IMPORTANTE: Configure os headers abaixo:
+# 1. Clique em "Set Headers" no menu
+# 2. Adicione os headers:
+#    - X-Target-WSDL: https://braveo.multiembarcador.com.br/SGT.WebService/Cargas.svc?wsdl
+#    - X-Auth-Token: 3a5cc98c141541e6bbc82bcc857c7176
 #
 # Exemplo de query:
 
@@ -692,26 +630,82 @@ query BuscarCargaExemplo {
       }
     }
   }
-}`,
-          initialSettings: {
-            theme: 'dark',
-            language: 'en-US',
-            addQueryDepthLimit: 7,
-            tabSize: 2
-          }
-        };
+}"""
 
-        try {
-          AltairGraphQL.init(altairOptions);
-          console.log('Altair initialized successfully!');
-        } catch (error) {
-          console.error('Error initializing Altair:', error);
-        }
-      } else {
-        console.error('AltairGraphQL is not defined!');
-      }
-    });
-  </script>
+    # URL encode das configurações
+    encoded_url = urllib.parse.quote(endpoint_url)
+    encoded_query = urllib.parse.quote(initial_query)
+
+    # URL do Altair hospedado online com configurações
+    altair_url = f"https://altair-gql.sirmuel.design/?endpoint={encoded_url}&query={encoded_query}"
+
+    html_content = f"""
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Altair GraphQL Client - Multiembarcador Facade</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {{
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #1d1d1d;
+    }}
+    iframe {{
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }}
+    .info-banner {{
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #2d2d2d;
+      color: #fff;
+      padding: 10px 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      z-index: 9999;
+      border-bottom: 1px solid #444;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+    .info-banner button {{
+      background: #444;
+      border: none;
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }}
+    .info-banner button:hover {{
+      background: #555;
+    }}
+    .iframe-container {{
+      margin-top: 41px;
+      height: calc(100vh - 41px);
+    }}
+  </style>
+</head>
+<body>
+  <div class="info-banner" id="banner">
+    <div>
+      ⚡ <strong>Altair GraphQL Client</strong> |
+      Configure os headers: X-Target-WSDL e X-Auth-Token no menu "Set Headers"
+    </div>
+    <button onclick="document.getElementById('banner').style.display='none'; document.querySelector('.iframe-container').style.marginTop='0'; document.querySelector('.iframe-container').style.height='100vh';">
+      Ocultar
+    </button>
+  </div>
+  <div class="iframe-container">
+    <iframe src="{altair_url}" allow="clipboard-read; clipboard-write"></iframe>
+  </div>
 </body>
 </html>
     """
