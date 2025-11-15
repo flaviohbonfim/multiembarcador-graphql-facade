@@ -591,7 +591,7 @@ async def altair():
     Altair GraphQL Client - IDE GraphQL avançado com features modernas.
     Suporta múltiplos ambientes, pre-request scripts, upload de arquivos e mais.
     """
-    html_content = """
+    html_content = r"""
 <!DOCTYPE html>
 <html>
 <head>
