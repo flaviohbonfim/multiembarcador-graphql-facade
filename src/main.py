@@ -490,7 +490,12 @@ async def scalarui():
     Os headers X-Target-WSDL e X-Auth-Token devem ser configurados
     diretamente na interface de teste do Scalar.
     """
-    html_content = """
+    # Gerar o spec inline para evitar problemas de CORS/loading
+    import json
+    openapi_spec = generate_openapi_from_graphql()
+    spec_json = json.dumps(openapi_spec)
+
+    html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -498,20 +503,20 @@ async def scalarui():
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Scalar API Reference - Multiembarcador GraphQL Facade</title>
     <style>
-        * {
+        * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        html, body {
+        }}
+        html, body {{
             height: 100%;
             width: 100%;
             overflow: hidden;
-        }
-        #api-reference {
+        }}
+        #api-reference {{
             height: 100vh;
             width: 100%;
-        }
+        }}
     </style>
 </head>
 <body>
@@ -521,37 +526,42 @@ async def scalarui():
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 
     <script>
-        // Aguardar o DOM estar pronto
-        document.addEventListener('DOMContentLoaded', () => {
-            // Criar a referência do Scalar
-            const initScalar = () => {
-                if (window.Scalar && window.Scalar.createApiReference) {
-                    window.Scalar.createApiReference('#api-reference', {
-                        spec: {
-                            url: '/openapi-graphql.json'
-                        },
-                        theme: 'purple',
-                        layout: 'modern',
-                        showSidebar: true,
-                        defaultHttpClient: {
-                            targetKey: 'javascript',
-                            clientKey: 'fetch'
-                        },
-                        // Configuração de metadados adicionais
-                        metaData: {
-                            title: 'Multiembarcador GraphQL Facade',
-                            description: 'Configure os headers X-Target-WSDL e X-Auth-Token nas requisições de teste'
-                        }
-                    });
-                    console.log('Scalar UI inicializado com sucesso!');
-                } else {
-                    console.error('Scalar não disponível, tentando novamente...');
-                    setTimeout(initScalar, 500);
-                }
-            };
+        // Spec OpenAPI inline
+        const openApiSpec = {spec_json};
 
-            initScalar();
-        });
+        // Aguardar o DOM e o Scalar estarem prontos
+        document.addEventListener('DOMContentLoaded', () => {{
+            console.log('DOM pronto, inicializando Scalar...');
+
+            // Tentar inicializar o Scalar
+            const initScalar = () => {{
+                if (window.Scalar && window.Scalar.createApiReference) {{
+                    try {{
+                        console.log('Scalar encontrado, criando referência...');
+                        window.Scalar.createApiReference(
+                            document.getElementById('api-reference'),
+                            {{
+                                spec: {{
+                                    content: openApiSpec
+                                }},
+                                theme: 'purple',
+                                layout: 'modern',
+                                showSidebar: true
+                            }}
+                        );
+                        console.log('Scalar UI inicializado com sucesso!');
+                    }} catch (error) {{
+                        console.error('Erro ao inicializar Scalar:', error);
+                    }}
+                }} else {{
+                    console.log('Scalar ainda não disponível, aguardando...');
+                    setTimeout(initScalar, 100);
+                }}
+            }};
+
+            // Pequeno delay para garantir que o script foi carregado
+            setTimeout(initScalar, 100);
+        }});
     </script>
 </body>
 </html>
