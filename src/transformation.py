@@ -1,6 +1,6 @@
 # src/transformation.py
 from typing import List, Optional, Any, Dict
-from .models import Carregamento, Pedido, ItemPedido, Participante
+from .models import Carregamento, Pedido, ItemPedido, Participante, DadosNotaFiscal
 
 def safe_get(data: Dict, *keys: Any) -> Optional[Any]:
     """
@@ -130,3 +130,37 @@ def transformar_carga_integracao(carga_integracao: List[Dict]) -> Optional[Carre
     except Exception as e:
         print(f"Erro catastrófico ao transformar dados: {e}")
         return None
+
+def transformar_nota_fiscal(notas: List[Dict], protocolo_carga_str: str) -> List[DadosNotaFiscal]:
+    """
+    Transforma a resposta do SOAP (List<NotaFiscal>)
+    em uma lista de 'DadosNotaFiscal', baseado na lógica C#.
+    """
+    if not notas:
+        return []
+
+    try:
+        lista_transformada = []
+        for x in notas:
+            # Mapeamento baseado no transformer C#
+            nota = DadosNotaFiscal(
+                protocoloCarga=protocolo_carga_str, # O protocolo passado para a função
+                protocoloPedido=safe_get(x, 'ProtocoloPedido'),
+                chaveAcesso=safe_get(x, 'Chave'),
+                cnpjExpedidor=safe_get(x, 'Emitente', 'CPFCNPJ'),
+                cnpjRecebedor=safe_get(x, 'Destinatario', 'CPFCNPJ'),
+                dataEmissao=safe_get(x, 'DataEmissao'),
+                numero=safe_get(x, 'Numero'),
+                serie=safe_get(x, 'Serie'),
+                pesoBruto=safe_get(x, 'PesoBruto'),
+                pesoLiquido=safe_get(x, 'PesoLiquido'),
+                situacao=str(safe_get(x, 'SituacaoNFeSefaz') or ''),
+                valor=safe_get(x, 'Valor')
+            )
+            lista_transformada.append(nota)
+
+        return lista_transformada
+
+    except Exception as e:
+        print(f"Erro catastrófico ao transformar dados da Nota Fiscal: {e}")
+        return [] # Retorna lista vazia em caso de erro
